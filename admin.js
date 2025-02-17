@@ -1,41 +1,31 @@
 // admin.js
 
-// Wait until the DOM is fully loaded
 document.addEventListener("DOMContentLoaded", function () {
-  // Store the original admin panel content
   const adminContainer = document.querySelector(".admin-container");
   const originalContent = adminContainer.innerHTML;
+  
+  // Show a loading indicator until admin verification is complete.
+  adminContainer.innerHTML = `<div style="padding: 20px; text-align: center;"><h2>Loading Admin Panel...</h2></div>`;
 
-  // Replace the content with a loading indicator
-  adminContainer.innerHTML = `
-    <div style="margin-top:50px; text-align:center;">
-      <h2>Loading Admin Panel...</h2>
-    </div>
-  `;
-
-  // Listen for changes in authentication state
   firebase.auth().onAuthStateChanged(async function (user) {
     if (user) {
-      console.log("User is logged in:", user.uid);
-      // Check if the logged-in user is an admin
+      console.log("User logged in:", user.uid);
       const userRef = db.collection("user").doc(user.uid);
       try {
         const doc = await userRef.get();
         if (!doc.exists || doc.data().admin !== true) {
-          console.warn("User is not an admin or admin data missing:", doc.data());
+          console.warn("Not an admin or admin data missing:", doc.data());
           await firebase.auth().signOut();
           window.location.href = "login.html";
         } else {
-          console.log("User is admin. Restoring admin panel...");
-          // Restore the original admin panel content
+          console.log("Admin verified. Loading panel...");
+          // Restore original admin panel content
           adminContainer.innerHTML = originalContent;
-          // Re-attach the sign out listener (since the DOM was replaced)
           attachSignOutListener();
-          // Fetch and display enquiries data
           fetchEnquiries();
         }
       } catch (error) {
-        console.error("Error fetching admin data:", error);
+        console.error("Error verifying admin:", error);
         await firebase.auth().signOut();
         window.location.href = "login.html";
       }
@@ -45,7 +35,7 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 
-  // Function to attach the sign out button listener
+  // Attach sign-out functionality
   function attachSignOutListener() {
     const signOutBtn = document.getElementById("signOutBtn");
     if (signOutBtn) {
@@ -56,43 +46,39 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Function to fetch and display enquiries from Firestore
+  // Fetch and display enquiries from Firestore, using a document fragment for efficient DOM updates.
   function fetchEnquiries() {
+    const tableBody = document.querySelector("#enquiriesTable tbody");
     db.collection("enquiries")
       .orderBy("timestamp", "desc")
       .onSnapshot(
         (snapshot) => {
-          console.log("Snapshot received. Document count:", snapshot.size);
-          const tableBody = document.querySelector("#enquiriesTable tbody");
-          tableBody.innerHTML = ""; // Clear any existing rows
-
+          tableBody.innerHTML = "";
           if (snapshot.empty) {
-            console.log("No enquiries found.");
-            tableBody.innerHTML = `<tr><td colspan="5">No enquiries found.</td></tr>`;
+            tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No enquiries found.</td></tr>`;
           } else {
+            const fragment = document.createDocumentFragment();
             snapshot.forEach((doc) => {
               const enquiry = doc.data();
-              console.log("Enquiry doc:", enquiry);
               let timeStr = "";
               if (enquiry.timestamp) {
                 try {
-                  const date = enquiry.timestamp.toDate();
-                  timeStr = date.toLocaleString();
+                  timeStr = enquiry.timestamp.toDate().toLocaleString();
                 } catch (err) {
                   console.error("Error formatting timestamp:", err);
                 }
               }
-              const row = `
-                <tr>
-                  <td>${enquiry.studentName || ""}</td>
-                  <td>${enquiry.classApplying || ""}</td>
-                  <td>${enquiry.parentName || ""}</td>
-                  <td>${enquiry.phone || ""}</td>
-                  <td>${timeStr}</td>
-                </tr>
+              const tr = document.createElement("tr");
+              tr.innerHTML = `
+                <td>${enquiry.studentName || ""}</td>
+                <td>${enquiry.classApplying || ""}</td>
+                <td>${enquiry.parentName || ""}</td>
+                <td>${enquiry.phone || ""}</td>
+                <td>${timeStr}</td>
               `;
-              tableBody.innerHTML += row;
+              fragment.appendChild(tr);
             });
+            tableBody.appendChild(fragment);
           }
         },
         (error) => {
