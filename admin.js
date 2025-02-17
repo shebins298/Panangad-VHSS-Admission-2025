@@ -73,7 +73,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 <td>${enquiry.studentName || ""}</td>
                 <td>${enquiry.classApplying || ""}</td>
                 <td>${enquiry.parentName || ""}</td>
-                <td>${enquiry.phone || ""}</td>
+                <td>${enquiry.phone ? `<a href="tel:${enquiry.phone}" style="color:#007aff; text-decoration:none;">${enquiry.phone}</a>` : ""}</td>
                 <td>${timeStr}</td>
               `;
               fragment.appendChild(tr);
