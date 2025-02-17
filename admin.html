@@ -5,12 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel</title>
   <link rel="stylesheet" href="admin.css" />
-  <!-- Firebase libraries -->
-  <!-- Firebase App (the core Firebase SDK) -->
+  <!-- Firebase libraries (Compat versions) -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-app-compat.js"></script>
-  <!-- Firebase Auth -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-auth-compat.js"></script>
-  <!-- Firebase Firestore -->
   <script src="https://www.gstatic.com/firebasejs/9.17.2/firebase-firestore-compat.js"></script>
   <script src="firebase-config.js"></script>
   <script defer src="admin.js"></script>
@@ -24,20 +21,22 @@
     <!-- Enquiries Section -->
     <section id="enquiriesSection">
       <h2>Enquiries</h2>
-      <table id="enquiriesTable">
-        <thead>
-          <tr>
-            <th>Student's Name</th>
-            <th>Class</th>
-            <th>Parent's Name</th>
-            <th>Contact</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Data rows will be injected here -->
-        </tbody>
-      </table>
+      <div class="table-wrapper">
+        <table id="enquiriesTable">
+          <thead>
+            <tr>
+              <th>Student's Name</th>
+              <th>Class</th>
+              <th>Parent's Name</th>
+              <th>Contact</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Data rows will be injected here -->
+          </tbody>
+        </table>
+      </div>
     </section>
   </div>
 </body>
